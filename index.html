@@ -44,6 +44,7 @@
             object-fit: contain;
             display: block;
             cursor: pointer;
+            -webkit-tap-highlight-color: transparent; /* Removes blue box flash on Android touch */
         }
 
         /* Pixel art font styling rules */
@@ -60,9 +61,6 @@
 </head>
 <body>
 
-    <!-- Hidden loop player with controls completely blocked -->
-    <audio id="bg-music" src="music.ogg" loop preload="auto"></audio>
-
     <div class="page-container">
         <!-- The interactive GIF target -->
         <img id="interactive-gif" src="deltarune-tree.gif" alt="Deltarune Tree Animation" class="centered-gif">
@@ -74,25 +72,35 @@
     </div>
 
     <script>
-        const audio = document.getElementById('bg-music');
+        // 1. Programmatically initialize the audio object structure for better mobile performance
+        const audio = new Audio('music.ogg');
+        audio.loop = true;
+        
+        // Android-specific optimization: Pre-fetch audio payload data immediately into mobile cache
+        audio.load();
+
         const gifButton = document.getElementById('interactive-gif');
 
-        function activateInteractiveGif() {
-            // 1. Kick off the unstoppable audio engine
-            audio.muted = false;
-            audio.play().catch(e => console.log(e));
+        function playMobileAudio(e) {
+            // Stops mobile chrome from triggering a double-tap glitch
+            e.preventDefault();
 
-            // 2. Remove the pointer cursor from the GIF
-            gifButton.style.cursor = 'default';
-
-            // 3. Destroy the listener completely so future clicks don't disrupt the track
-            gifButton.removeEventListener('click', activateInteractiveGif);
-            gifButton.removeEventListener('touchstart', activateInteractiveGif);
+            // Kick off audio playback stream
+            audio.play().then(() => {
+                // Success: Audio stream verified by system container
+                gifButton.style.cursor = 'default';
+                
+                // Completely dismantle listeners so additional taps won't restart or disrupt the track
+                gifButton.removeEventListener('click', playMobileAudio);
+                gifButton.removeEventListener('touchstart', playMobileAudio);
+            }).catch(err => {
+                console.log("Mobile pipeline blocked playback engine:", err);
+            });
         }
 
-        // Listens for clicks/taps ONLY when interacting directly with the GIF image
-        gifButton.addEventListener('click', activateInteractiveGif);
-        gifButton.addEventListener('touchstart', activateInteractiveGif);
+        // Bind cleanly to both desktop mouse clicks and mobile touchscreen touch starts
+        gifButton.addEventListener('click', playMobileAudio, { passive: false });
+        gifButton.addEventListener('touchstart', playMobileAudio, { passive: false });
 
         // Unstoppable protection guardrail loop
         audio.addEventListener('pause', () => {
