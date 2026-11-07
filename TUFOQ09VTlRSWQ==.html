@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>The Room</title>
     <style>
-        /* Import custom pixel font file from repository */
         @font-face {
             font-family: 'DotumChePixel';
             src: url('dotumche.ttf') format('truetype');
@@ -13,7 +12,6 @@
             font-style: normal;
         }
 
-        /* Force full-screen layout with black background */
         html, body {
             margin: 0;
             padding: 0;
@@ -26,7 +24,6 @@
             overflow: hidden;
         }
 
-        /* Container shifts layout direction to column to cleanly stack content */
         .page-container {
             display: flex;
             flex-direction: column;
@@ -37,7 +34,6 @@
             max-height: 95vh;
         }
 
-        /* Responsive constraints for the layout engine */
         .centered-gif {
             max-width: 100%;
             max-height: 70vh;
@@ -47,7 +43,6 @@
             -webkit-tap-highlight-color: transparent;
         }
 
-        /* Pixel art font styling rules */
         .pixel-text {
             font-family: 'DotumChePixel', 'Courier New', monospace;
             color: #ffffff;
@@ -63,32 +58,26 @@
 <body>
 
     <div class="page-container">
-        <!-- Remember to change 'secret-asset.gif' to your actual subpage GIF file name -->
         <img id="interactive-gif" src="secret-asset.gif" alt="Secret Room Animation" class="centered-gif">
-        
-        <!-- The dynamic text container -->
         <div id="text-prompt" class="pixel-text">
-                 
+            * (You found your way inside.)
         </div>
     </div>
 
-    <script>
-        // 1. Initialize custom background track
-        const audio = new Audio('music4.ogg');
-        audio.loop = true;
-        audio.load();
+    <!-- Hidden audio element explicitly defined for the audio system context graph -->
+    <audio id="bg-track" src="music4.ogg" loop preload="auto" crossorigin="anonymous"></audio>
 
+    <script>
+        const audioElement = document.getElementById('bg-track');
         const gifButton = document.getElementById('interactive-gif');
         const textPrompt = document.getElementById('text-prompt');
         
-        let audioStarted = false;
+        let audioContextInitialized = false;
         let dialogueIndex = 0;
 
-        // 2. Your custom dialogue list with asterisks included
         const dialogueList = [
             "* WELL,",
-            "* SPRING CHANGED TO SUMMER,",
-            "* AND SUMMER CHANGED TO COLD,",
+            "* SPRING CHANGED TO SUMMER, AND SUMMER CHANGED TO COLD,",
             "* AND SURE ENOUGH,",
             "* I AM THE FORGOTTEN MAN."
         ];
@@ -96,37 +85,52 @@
         function handleInteraction(e) {
             e.preventDefault();
 
-            // Start the unstoppable audio track on the very first interaction
-            if (!audioStarted) {
-                audio.play().catch(err => console.log("Audio start error:", err));
-                audioStarted = true;
+            // Web Audio API Pipeline Activation Layer
+            if (!audioContextInitialized) {
+                try {
+                    // Instantiates or resumes the system audio stream graph container
+                    const AudioContext = window.AudioContext || window.webkitAudioContext;
+                    const audioCtx = new AudioContext();
+                    
+                    // Creates an interface route tying the audio element directly to the device sound card
+                    const source = audioCtx.createMediaElementSource(audioElement);
+                    source.connect(audioCtx.destination);
+                    
+                    if (audioCtx.state === 'suspended') {
+                        audioCtx.resume(); // Explicitly unlocks mobile sound processor pipeline
+                    }
+                } catch(err) {
+                    console.log("AudioContext routing initialized implicitly or active.");
+                }
+
+                // Fire the playback engine
+                audioElement.play().catch(err => console.log("Playback error:", err));
+                audioContextInitialized = true;
             }
 
-            // Step through dialogue frames one by one
+            // Step through dialogue frames
             if (dialogueIndex < dialogueList.length) {
                 textPrompt.innerHTML = dialogueList[dialogueIndex];
                 dialogueIndex++;
             } else {
-                // Dialogue has ended. Hide the text container completely.
                 textPrompt.innerHTML = "";
                 textPrompt.style.display = "none"; 
             }
         }
 
-        // Bind cleanly to screen interaction contexts
-        gifButton.addEventListener('click', handleInteraction);
+        // Bind directly to desktop clicks and physical mobile touch layouts
+        gifButton.addEventListener('click', handleInteraction, { passive: false });
         gifButton.addEventListener('touchstart', handleInteraction, { passive: false });
 
         // Unstoppable protection guardrail loop
-        audio.addEventListener('pause', () => {
-            audio.play().catch(e => console.log("Overriding pause command:", e));
+        audioElement.addEventListener('pause', () => {
+            audioElement.play().catch(e => console.log(e));
         });
 
-        // Prevent spacebar or keyboard shortcuts from pausing the audio stream
         window.addEventListener('keydown', (e) => {
             if (e.code === 'Space' || e.keyCode === 32) {
                 e.preventDefault(); 
-                audio.play().catch(e => console.log(e));
+                audioElement.play().catch(e => console.log(e));
             }
         });
     </script>
