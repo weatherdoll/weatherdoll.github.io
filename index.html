@@ -43,6 +43,7 @@
             max-height: 70vh;
             object-fit: contain;
             display: block;
+            cursor: pointer; /* Changes mouse to a pointer only when hovering over the GIF */
         }
 
         /* Pixel art font styling rules */
@@ -60,41 +61,52 @@
 <body>
 
     <!-- Hidden loop player with controls completely blocked -->
-    <audio id="bg-music" src="music.ogg" autoplay loop muted preload="auto"></audio>
+    <audio id="bg-music" src="music.ogg" loop preload="auto"></audio>
 
     <div class="page-container">
-        <img src="deltarune-tree.gif" alt="Deltarune Tree Animation" class="centered-gif">
+        <!-- The interactive GIF target -->
+        <img id="interactive-gif" src="deltarune-tree.gif" alt="Deltarune Tree Animation" class="centered-gif">
         
-        <div class="pixel-text">
-            * (Well, there is a man here.)
+        <!-- Interactive text caption wrapper -->
+        <div id="text-prompt" class="pixel-text">
+            * (Click on the tree to interact.)
         </div>
     </div>
 
     <script>
         const audio = document.getElementById('bg-music');
+        const gifButton = document.getElementById('interactive-gif');
+        const textPrompt = document.getElementById('text-prompt');
 
-        function unmuteAudio() {
-            if (audio.muted) {
-                audio.muted = false;
-            }
-            // Enforce constant loop playback
+        function activateInteractiveGif() {
+            // 1. Kick off the unstoppable audio engine
+            audio.muted = false;
             audio.play().catch(e => console.log(e));
+
+            // 2. Change the menu text to your actual caption immediately upon interaction
+            textPrompt.innerHTML = "* (The tree stands in the distance.)";
+
+            // 3. Clean up the hover pointer cursor look from the GIF
+            gifButton.style.cursor = 'default';
+
+            // 4. Destroy the listener completely so future clicks on the GIF don't disrupt your stream
+            gifButton.removeEventListener('click', activateInteractiveGif);
+            gifButton.removeEventListener('touchstart', activateInteractiveGif);
         }
 
-        // 1. Any click/tap on the screen forces the audio to UNMUTE and PLAY
-        document.addEventListener('click', unmuteAudio);
-        document.addEventListener('touchstart', unmuteAudio);
+        // Listens for clicks/taps ONLY when interacting directly with the GIF image element
+        gifButton.addEventListener('click', activateInteractiveGif);
+        gifButton.addEventListener('touchstart', activateInteractiveGif);
 
-        // 2. Unstoppable protection guardrail loop
-        // If anything or anyone tries to pause the music track, it instantly overrides it and plays anyway
+        // Unstoppable protection guardrail loop
         audio.addEventListener('pause', () => {
             audio.play().catch(e => console.log("Overriding pause command:", e));
         });
 
-        // 3. Prevent spacebar or keyboard shortcuts from pausing the audio stream
+        // Prevent spacebar or keyboard shortcuts from pausing the audio stream
         window.addEventListener('keydown', (e) => {
             if (e.code === 'Space' || e.keyCode === 32) {
-                e.preventDefault(); // Blocks the default behavior completely
+                e.preventDefault(); 
                 audio.play().catch(e => console.log(e));
             }
         });
