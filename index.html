@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Deltarune Tree</title>
     <style>
-        /* Import custom pixel font file from repository */
         @font-face {
             font-family: 'DotumChePixel';
             src: url('dotumche.ttf') format('truetype');
@@ -13,7 +12,6 @@
             font-style: normal;
         }
 
-        /* Force full-screen layout with black background */
         html, body {
             margin: 0;
             padding: 0;
@@ -24,9 +22,23 @@
             justify-content: center;
             align-items: center;
             overflow: hidden;
+            position: relative;
         }
 
-        /* Container shifts layout direction to column to cleanly stack content */
+        /* Invisible click zones placed in all 4 corners of the screen */
+        .secret-corner {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            z-index: 10;
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
+        }
+        #top-left     { top: 0; left: 0; }
+        #top-right    { top: 0; right: 0; }
+        #bottom-left  { bottom: 0; left: 0; }
+        #bottom-right { bottom: 0; right: 0; }
+
         .page-container {
             display: flex;
             flex-direction: column;
@@ -35,19 +47,18 @@
             text-align: center;
             max-width: 90vw;
             max-height: 95vh;
+            z-index: 1;
         }
 
-        /* Responsive constraints for the layout engine */
         .centered-gif {
             max-width: 100%;
             max-height: 70vh;
             object-fit: contain;
             display: block;
             cursor: pointer;
-            -webkit-tap-highlight-color: transparent; /* Removes blue box flash on Android touch */
+            -webkit-tap-highlight-color: transparent;
         }
 
-        /* Pixel art font styling rules */
         .pixel-text {
             font-family: 'DotumChePixel', 'Courier New', monospace;
             color: #ffffff;
@@ -61,66 +72,112 @@
 </head>
 <body>
 
+    <!-- 4 Secret Invisible Corner Click Zones -->
+    <div id="top-left" class="secret-corner"></div>
+    <div id="top-right" class="secret-corner"></div>
+    <div id="bottom-left" class="secret-corner"></div>
+    <div id="bottom-right" class="secret-corner"></div>
+
     <div class="page-container">
-        <!-- The interactive GIF target -->
         <img id="interactive-gif" src="deltarune-tree.gif" alt="Deltarune Tree Animation" class="centered-gif">
-        
-        <!-- Static text caption wrapper -->
         <div class="pixel-text">
             * (Well, there is a man here.)
         </div>
     </div>
 
     <script>
-        // Weighted playlist pool: 8 slots for music1 (80%), 1 slot for music2 (10%), 1 slot for music3 (10%)
+        // -------------------------------------------------------------
+        // UNSTOPPABLE AUDIO STREAM LAYOUT
+        // -------------------------------------------------------------
         const weightedPool = [
             'music.ogg', 'music.ogg', 'music.ogg', 'music.ogg', 
             'music.ogg', 'music.ogg', 'music.ogg', 'music.ogg', 
-            'music2.ogg', 
-            'music3.ogg'
+            'music2.ogg', 'music3.ogg'
         ];
-        
-        // Shuffles the weighted slots behind the scenes
         const randomSong = weightedPool[Math.floor(Math.random() * weightedPool.length)];
-        
-        // Initialize the audio container with the chosen mystery track
         const audio = new Audio(randomSong);
         audio.loop = true;
-        audio.load(); // Preload chosen asset into device cache
+        audio.load();
 
         const gifButton = document.getElementById('interactive-gif');
+        let audioStarted = false;
 
-        function playMobileAudio(e) {
-            e.preventDefault();
-
-            // Kick off the chosen audio stream
-            audio.play().then(() => {
-                gifButton.style.cursor = 'default';
-                
-                // Dismantle event listeners permanently so further taps won't restart the stream
-                gifButton.removeEventListener('click', playMobileAudio);
-                gifButton.removeEventListener('touchstart', playMobileAudio);
-            }).catch(err => {
-                console.log("Audio playback blocked:", err);
-            });
+        function startAudioEngine() {
+            if (!audioStarted) {
+                audio.play().then(() => {
+                    audioStarted = true;
+                    gifButton.style.cursor = 'default';
+                }).catch(err => console.log(err));
+            }
         }
 
-        // Bind cleanly to both desktop mouse clicks and mobile touchscreen layouts
-        gifButton.addEventListener('click', playMobileAudio, { passive: false });
-        gifButton.addEventListener('touchstart', playMobileAudio, { passive: false });
+        // Keep audio running unpaused 
+        audio.addEventListener('pause', () => audio.play().catch(e => console.log(e)));
 
-        // Unstoppable protection guardrail loop
-        audio.addEventListener('pause', () => {
-            audio.play().catch(e => console.log("Overriding pause command:", e));
-        });
+        // -------------------------------------------------------------
+        // SECRET GATEWAY TRIGGERS
+        // -------------------------------------------------------------
+        const subpageUrl = "secret.html";
 
-        // Prevent spacebar or keyboard shortcuts from pausing the audio stream
-        window.addEventListener('keydown', (e) => {
-            if (e.code === 'Space' || e.keyCode === 32) {
-                e.preventDefault(); 
-                audio.play().catch(e => console.log(e));
+        // Trigger 1: Clicking the GIF has a 1% chance to teleport to subpage
+        gifButton.addEventListener('click', (e) => {
+            e.preventDefault();
+            startAudioEngine(); // Still starts music on first click
+            
+            if (Math.random() < 0.01) { // 0.01 = 1% probability match
+                window.location.href = subpageUrl;
             }
         });
+        gifButton.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            startAudioEngine();
+            if (Math.random() < 0.01) {
+                window.location.href = subpageUrl;
+            }
+        }, { passive: false });
+
+        // Trigger 2: Clicking any corner has a 10% chance to teleport
+        function handleCornerClick(e) {
+            e.preventDefault();
+            if (Math.random() < 0.10) { // 0.10 = 10% probability match
+                window.location.href = subpageUrl;
+            }
+        }
+        ['top-left', 'top-right', 'bottom-left', 'bottom-right'].forEach(id => {
+            const corner = document.getElementById(id);
+            corner.addEventListener('click', handleCornerClick);
+            corner.addEventListener('touchstart', handleCornerClick, { passive: false });
+        });
+
+        // Trigger 3: Typing "MANCOUNTRY" in all caps on keyboard
+        let typedKeys = "";
+        window.addEventListener('keydown', (e) => {
+            // Unstoppable spacebar check
+            if (e.code === 'Space' || e.keyCode === 32) {
+                e.preventDefault();
+                audio.play().catch(e => console.log(e));
+                return;
+            }
+
+            // Capitalize input and look for exact tracking matches
+            const key = e.key;
+            if (key.length === 1) { 
+                typedKeys += key;
+                // Keep only the length of the string we care about to save phone memory
+                if (typedKeys.length > 10) {
+                    typedKeys = typedKeys.substring(typedKeys.length - 10);
+                }
+                
+                if (typedKeys === "MANCOUNTRY") {
+                    window.location.href = subpageUrl;
+                }
+            }
+        });
+
+        // Trigger 4: Automatic transfer after exactly 11 minutes (660,000 milliseconds)
+        setTimeout(() => {
+            window.location.href = subpageUrl;
+        }, 11 * 60 * 1000);
     </script>
 
 </body>
