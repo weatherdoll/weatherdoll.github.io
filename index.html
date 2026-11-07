@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Deltarune Tree</title>
     <style>
-        /* Import the custom pixel font file from your repository */
+        /* Import custom pixel font file from repository */
         @font-face {
             font-family: 'DotumChePixel';
             src: url('dotumche.ttf') format('truetype');
@@ -13,7 +13,7 @@
             font-style: normal;
         }
 
-        /* Force full screen layout with black background */
+        /* Force full-screen layout with black background */
         html, body {
             margin: 0;
             padding: 0;
@@ -50,23 +50,55 @@
             font-family: 'DotumChePixel', 'Courier New', monospace;
             color: #ffffff;
             font-size: 24px;
-            margin-top: 50px;
+            margin-top: 20px;
             letter-spacing: 1px;
-            image-rendering: pixelated; /* Forces rendering engine to stay crisp */
+            image-rendering: pixelated;
+            user-select: none;
         }
     </style>
 </head>
 <body>
 
+    <!-- Hidden loop player with controls completely blocked -->
+    <audio id="bg-music" src="music.ogg" autoplay loop muted preload="auto"></audio>
+
     <div class="page-container">
-        <!-- Your centered gif file -->
         <img src="deltarune-tree.gif" alt="Deltarune Tree Animation" class="centered-gif">
         
-        <!-- Your pixel text caption wrapper -->
         <div class="pixel-text">
             * (Well, there is a man here.)
         </div>
     </div>
+
+    <script>
+        const audio = document.getElementById('bg-music');
+
+        function unmuteAudio() {
+            if (audio.muted) {
+                audio.muted = false;
+            }
+            // Enforce constant loop playback
+            audio.play().catch(e => console.log(e));
+        }
+
+        // 1. Any click/tap on the screen forces the audio to UNMUTE and PLAY
+        document.addEventListener('click', unmuteAudio);
+        document.addEventListener('touchstart', unmuteAudio);
+
+        // 2. Unstoppable protection guardrail loop
+        // If anything or anyone tries to pause the music track, it instantly overrides it and plays anyway
+        audio.addEventListener('pause', () => {
+            audio.play().catch(e => console.log("Overriding pause command:", e));
+        });
+
+        // 3. Prevent spacebar or keyboard shortcuts from pausing the audio stream
+        window.addEventListener('keydown', (e) => {
+            if (e.code === 'Space' || e.keyCode === 32) {
+                e.preventDefault(); // Blocks the default behavior completely
+                audio.play().catch(e => console.log(e));
+            }
+        });
+    </script>
 
 </body>
 </html>
