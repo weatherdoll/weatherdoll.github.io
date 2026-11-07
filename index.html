@@ -72,33 +72,40 @@
     </div>
 
     <script>
-        // 1. Programmatically initialize the audio object structure for better mobile performance
-        const audio = new Audio('music.ogg');
-        audio.loop = true;
+        // Weighted playlist pool: 8 slots for music1 (80%), 1 slot for music2 (10%), 1 slot for music3 (10%)
+        const weightedPool = [
+            'music.ogg', 'music.ogg', 'music.ogg', 'music.ogg', 
+            'music.ogg', 'music.ogg', 'music.ogg', 'music.ogg', 
+            'music2.ogg', 
+            'music3.ogg'
+        ];
         
-        // Android-specific optimization: Pre-fetch audio payload data immediately into mobile cache
-        audio.load();
+        // Shuffles the weighted slots behind the scenes
+        const randomSong = weightedPool[Math.floor(Math.random() * weightedPool.length)];
+        
+        // Initialize the audio container with the chosen mystery track
+        const audio = new Audio(randomSong);
+        audio.loop = true;
+        audio.load(); // Preload chosen asset into device cache
 
         const gifButton = document.getElementById('interactive-gif');
 
         function playMobileAudio(e) {
-            // Stops mobile chrome from triggering a double-tap glitch
             e.preventDefault();
 
-            // Kick off audio playback stream
+            // Kick off the chosen audio stream
             audio.play().then(() => {
-                // Success: Audio stream verified by system container
                 gifButton.style.cursor = 'default';
                 
-                // Completely dismantle listeners so additional taps won't restart or disrupt the track
+                // Dismantle event listeners permanently so further taps won't restart the stream
                 gifButton.removeEventListener('click', playMobileAudio);
                 gifButton.removeEventListener('touchstart', playMobileAudio);
             }).catch(err => {
-                console.log("Mobile pipeline blocked playback engine:", err);
+                console.log("Audio playback blocked:", err);
             });
         }
 
-        // Bind cleanly to both desktop mouse clicks and mobile touchscreen touch starts
+        // Bind cleanly to both desktop mouse clicks and mobile touchscreen layouts
         gifButton.addEventListener('click', playMobileAudio, { passive: false });
         gifButton.addEventListener('touchstart', playMobileAudio, { passive: false });
 
