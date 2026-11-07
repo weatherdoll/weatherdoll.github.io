@@ -5,7 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Deltarune Tree</title>
     <style>
-        /* Force the page to fill the entire screen and stay black */
+        /* Import the custom pixel font file from your repository */
+        @font-face {
+            font-family: 'DotumChePixel';
+            src: url('dotumche.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        /* Force full screen layout with black background */
         html, body {
             margin: 0;
             padding: 0;
@@ -18,28 +26,46 @@
             overflow: hidden;
         }
 
-        /* Responsive layout container for mobile and desktop screens */
-        .gif-container {
+        /* Container shifts layout direction to column to cleanly stack content */
+        .page-container {
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
-            width: 100%;
-            height: 100%;
+            text-align: center;
+            max-width: 90vw;
+            max-height: 95vh;
         }
 
-        /* Keeps the GIF scaled, centered, and crisp across devices */
+        /* Responsive constraints for the layout engine */
         .centered-gif {
-            max-width: 90vw;
-            max-height: 90vh;
+            max-width: 100%;
+            max-height: 70vh;
             object-fit: contain;
+            display: block;
+        }
+
+        /* Pixel art font styling rules */
+        .pixel-text {
+            font-family: 'DotumChePixel', 'Courier New', monospace;
+            color: #ffffff;
+            font-size: 24px;
+            margin-top: 20px;
+            letter-spacing: 1px;
+            image-rendering: pixelated; /* Forces rendering engine to stay crisp */
         }
     </style>
 </head>
 <body>
 
-    <div class="gif-container">
-        <!-- Points directly to your uploaded file -->
+    <div class="page-container">
+        <!-- Your centered gif file -->
         <img src="deltarune-tree.gif" alt="Deltarune Tree Animation" class="centered-gif">
+        
+        <!-- Your pixel text caption wrapper -->
+        <div class="pixel-text">
+            Type your custom text here...
+        </div>
     </div>
 
 </body>
