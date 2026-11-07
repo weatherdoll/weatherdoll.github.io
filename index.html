@@ -43,7 +43,7 @@
             max-height: 70vh;
             object-fit: contain;
             display: block;
-            cursor: pointer; /* Changes mouse to a pointer only when hovering over the GIF */
+            cursor: pointer;
         }
 
         /* Pixel art font styling rules */
@@ -67,34 +67,30 @@
         <!-- The interactive GIF target -->
         <img id="interactive-gif" src="deltarune-tree.gif" alt="Deltarune Tree Animation" class="centered-gif">
         
-        <!-- Interactive text caption wrapper -->
-        <div id="text-prompt" class="pixel-text">
-            * (Click on the tree to interact.)
+        <!-- Static text caption wrapper -->
+        <div class="pixel-text">
+            * (Well, there is a man here.)
         </div>
     </div>
 
     <script>
         const audio = document.getElementById('bg-music');
         const gifButton = document.getElementById('interactive-gif');
-        const textPrompt = document.getElementById('text-prompt');
 
         function activateInteractiveGif() {
             // 1. Kick off the unstoppable audio engine
             audio.muted = false;
             audio.play().catch(e => console.log(e));
 
-            // 2. Change the menu text to your actual caption immediately upon interaction
-            textPrompt.innerHTML = "* (The tree stands in the distance.)";
-
-            // 3. Clean up the hover pointer cursor look from the GIF
+            // 2. Remove the pointer cursor from the GIF
             gifButton.style.cursor = 'default';
 
-            // 4. Destroy the listener completely so future clicks on the GIF don't disrupt your stream
+            // 3. Destroy the listener completely so future clicks don't disrupt the track
             gifButton.removeEventListener('click', activateInteractiveGif);
             gifButton.removeEventListener('touchstart', activateInteractiveGif);
         }
 
-        // Listens for clicks/taps ONLY when interacting directly with the GIF image element
+        // Listens for clicks/taps ONLY when interacting directly with the GIF image
         gifButton.addEventListener('click', activateInteractiveGif);
         gifButton.addEventListener('touchstart', activateInteractiveGif);
 
