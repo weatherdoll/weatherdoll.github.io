@@ -66,15 +66,16 @@
 
     <!-- Hidden audio element explicitly defined for the audio system context graph -->
     <audio id="bg-track" src="music4.ogg" loop preload="auto" crossorigin="anonymous"></audio>
+    
+    <!-- HARD CODED AUDIO ELEMENT WITH YOUR EXACT FILENAME (Line 59) -->
+    <audio id="dialogue-sfx" src="snd_board_text_main_end.wav" preload="auto" crossorigin="anonymous"></audio>
 
     <script>
         const audioElement = document.getElementById('bg-track');
+        const dialogueSfx = document.getElementById('dialogue-sfx');
         const gifButton = document.getElementById('interactive-gif');
         const textPrompt = document.getElementById('text-prompt');
         
-        // Parallel audio stream layer for seamless dialogue sound effect execution
-        const dialogueSfx = new Audio('snd_board_text_main_end.wav'); 
-
         let audioContextInitialized = false;
         let dialogueIndex = 0;
 
@@ -106,8 +107,15 @@
                     console.log("AudioContext routing initialized implicitly or active.");
                 }
 
-                // Fire the playback engine
+                // Fire the playback engine for both background music and user sound effects
                 audioElement.play().catch(err => console.log("Playback error:", err));
+                
+                // Triggers a silent kickstart on mobile so Chrome flags it as unblocked
+                dialogueSfx.play().then(() => {
+                    dialogueSfx.pause();
+                    dialogueSfx.currentTime = 0;
+                }).catch(err => console.log("SFX kickstart failed:", err));
+
                 audioContextInitialized = true;
             }
 
@@ -117,9 +125,8 @@
                 dialogueIndex++;
 
                 // Sound Effect Dispatcher Layer
-                // Forces the sound head back to 0 to enable clean audio execution on quick clicks
                 dialogueSfx.currentTime = 0;
-                dialogueSfx.play().catch(err => console.log("SFX blocked or still loading:", err));
+                dialogueSfx.play().catch(err => console.log("SFX execution blocked:", err));
             } else {
                 textPrompt.innerHTML = "";
                 textPrompt.style.display = "none"; 
