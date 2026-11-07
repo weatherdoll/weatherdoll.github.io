@@ -72,6 +72,9 @@
         const gifButton = document.getElementById('interactive-gif');
         const textPrompt = document.getElementById('text-prompt');
         
+        // Parallel audio stream layer for seamless dialogue sound effect execution
+        const dialogueSfx = new Audio('snd_board_text_main_end.wav'); 
+
         let audioContextInitialized = false;
         let dialogueIndex = 0;
 
@@ -112,6 +115,11 @@
             if (dialogueIndex < dialogueList.length) {
                 textPrompt.innerHTML = dialogueList[dialogueIndex];
                 dialogueIndex++;
+
+                // Sound Effect Dispatcher Layer
+                // Forces the sound head back to 0 to enable clean audio execution on quick clicks
+                dialogueSfx.currentTime = 0;
+                dialogueSfx.play().catch(err => console.log("SFX blocked or still loading:", err));
             } else {
                 textPrompt.innerHTML = "";
                 textPrompt.style.display = "none"; 
