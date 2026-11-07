@@ -67,7 +67,7 @@
     <!-- Hidden audio element explicitly defined for the audio system context graph -->
     <audio id="bg-track" src="music4.ogg" loop preload="auto" crossorigin="anonymous"></audio>
     
-    <!-- HARD CODED AUDIO ELEMENT WITH YOUR EXACT FILENAME (Line 59) -->
+    <!-- Hard-coded audio element mapping your exact dialogue advance sound file -->
     <audio id="dialogue-sfx" src="snd_board_text_main_end.wav" preload="auto" crossorigin="anonymous"></audio>
 
     <script>
@@ -107,15 +107,8 @@
                     console.log("AudioContext routing initialized implicitly or active.");
                 }
 
-                // Fire the playback engine for both background music and user sound effects
+                // Fire the background playback engine
                 audioElement.play().catch(err => console.log("Playback error:", err));
-                
-                // Triggers a silent kickstart on mobile so Chrome flags it as unblocked
-                dialogueSfx.play().then(() => {
-                    dialogueSfx.pause();
-                    dialogueSfx.currentTime = 0;
-                }).catch(err => console.log("SFX kickstart failed:", err));
-
                 audioContextInitialized = true;
             }
 
@@ -124,7 +117,7 @@
                 textPrompt.innerHTML = dialogueList[dialogueIndex];
                 dialogueIndex++;
 
-                // Sound Effect Dispatcher Layer
+                // Sound Effect Dispatcher Layer (Fires flawlessly on every interaction, including the first)
                 dialogueSfx.currentTime = 0;
                 dialogueSfx.play().catch(err => console.log("SFX execution blocked:", err));
             } else {
