@@ -3,25 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Website</title>
+    <title>Deltarune Tree</title>
     <style>
-        /* Resets margins and fills the whole screen */
+        /* Force the page to fill the entire screen and stay black */
         html, body {
             margin: 0;
             padding: 0;
             width: 100%;
             height: 100%;
-            background-color: black;
-            /* Flexbox perfectly centers the content horizontally and vertically */
+            background-color: #000000 !important;
             display: flex;
             justify-content: center;
             align-items: center;
-            overflow: hidden; 
+            overflow: hidden;
         }
 
-        /* Makes sure the GIF scales dynamically and stays crisp on mobile and desktop */
+        /* Responsive layout container for mobile and desktop screens */
+        .gif-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Keeps the GIF scaled, centered, and crisp across devices */
         .centered-gif {
-            max-width: 90%;
+            max-width: 90vw;
             max-height: 90vh;
             object-fit: contain;
         }
@@ -29,9 +37,10 @@
 </head>
 <body>
 
-    <!-- REPLACE THE LINK BELOW WITH YOUR OWN GIF LINK -->
-    <img src="deltarune-tree.gif" alt="Centered GIF" class="centered-gif">
-
+    <div class="gif-container">
+        <!-- Points directly to your uploaded file -->
+        <img src="deltarune-tree.gif" alt="Deltarune Tree Animation" class="centered-gif">
+    </div>
 
 </body>
 </html>
